@@ -15,37 +15,75 @@ return new class extends Migration
 
             $table->id();
 
-            // Employee Information
-            $table->string('employee_id')->unique();
+            /*
+            |--------------------------------------------------------------------------
+            | Employee Information
+            |--------------------------------------------------------------------------
+            */
+            $table->string('employee_id', 20)->unique();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('phone')->nullable();
+            $table->string('phone', 20)->nullable();
 
-            // Authentication
+            /*
+            |--------------------------------------------------------------------------
+            | Authentication
+            |--------------------------------------------------------------------------
+            */
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
-            // Role
-            $table->enum('role', ['admin', 'employee'])->default('employee');
+            /*
+            |--------------------------------------------------------------------------
+            | User Role
+            |--------------------------------------------------------------------------
+            */
+            $table->enum('role', [
+                'admin',
+                'employee'
+            ])->default('employee');
 
-            // Profile
+            /*
+            |--------------------------------------------------------------------------
+            | Profile Information
+            |--------------------------------------------------------------------------
+            */
             $table->string('profile_photo')->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->enum('gender', ['Male', 'Female', 'Other'])->nullable();
 
-            // Organization
-            $table->string('department')->nullable();
+            $table->enum('gender', [
+                'Male',
+                'Female',
+                'Other'
+            ])->nullable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | Organization Details
+            |--------------------------------------------------------------------------
+            */
+            $table->unsignedBigInteger('department_id')->nullable();
+
             $table->string('designation')->nullable();
+
             $table->date('joining_date')->nullable();
 
-            // Address
+            /*
+            |--------------------------------------------------------------------------
+            | Address
+            |--------------------------------------------------------------------------
+            */
             $table->text('address')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('country')->nullable();
             $table->string('postal_code')->nullable();
 
-            // Employment Status
+            /*
+            |--------------------------------------------------------------------------
+            | Employment Status
+            |--------------------------------------------------------------------------
+            */
             $table->enum('employment_status', [
                 'Active',
                 'Inactive',
@@ -53,15 +91,27 @@ return new class extends Migration
                 'Resigned'
             ])->default('Active');
 
-            // Emergency Contact
+            /*
+            |--------------------------------------------------------------------------
+            | Emergency Contact
+            |--------------------------------------------------------------------------
+            */
             $table->string('emergency_contact_name')->nullable();
-            $table->string('emergency_contact_phone')->nullable();
+            $table->string('emergency_contact_phone', 20)->nullable();
             $table->string('emergency_contact_relation')->nullable();
 
-            // Device Information (Optional)
+            /*
+            |--------------------------------------------------------------------------
+            | Device Information (Optional)
+            |--------------------------------------------------------------------------
+            */
             $table->string('device_id')->nullable();
 
-            // Remember Token
+            /*
+            |--------------------------------------------------------------------------
+            | Laravel Defaults
+            |--------------------------------------------------------------------------
+            */
             $table->rememberToken();
 
             $table->timestamps();
@@ -78,7 +128,11 @@ return new class extends Migration
         Schema::create('sessions', function (Blueprint $table) {
 
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+
+            $table->foreignId('user_id')
+                  ->nullable()
+                  ->index();
+
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
@@ -92,8 +146,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };
