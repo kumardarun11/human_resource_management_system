@@ -3,47 +3,60 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\PayrollRequest;
+use App\Models\Payroll;
 use Illuminate\Http\Request;
 
 class PayrollController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $payrolls = Payroll::with('user')
+            ->latest()
+            ->get();
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Payroll List',
+            'data' => $payrolls
+        ]);
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show($id)
     {
-        //
-    }
+        $payroll = Payroll::with('user')->find($id);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        if (!$payroll) {
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+            return response()->json([
+                'success' => false,
+                'message' => 'Payroll not found.'
+            ],404);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => $payroll
+        ]);
     }
+    public function downloadPayslip($id)
+    {
+        $payroll = Payroll::with('user')->find($id);
+
+        if (!$payroll) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Payroll not found.'
+            ],404);
+
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Payslip downloaded successfully.',
+            'data' => $payroll
+        ]);
+    }
+    
 }

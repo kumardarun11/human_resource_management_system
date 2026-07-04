@@ -81,4 +81,20 @@ Route::prefix('leave')->group(function () {
 
 });
 
+/*
+|--------------------------------------------------------------------------
+| Payroll Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('payroll')->group(function () {
+
+    Route::get('/', [PayrollController::class, 'index']);
+
+    Route::get('/{id}', [PayrollController::class, 'show']);
+
+    Route::get('/download/{id}', [PayrollController::class, 'downloadPayslip']);
+
+});
+
 });
