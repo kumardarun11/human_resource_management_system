@@ -15,6 +15,10 @@ use Laravel\Sanctum\Sanctum;
 use App\Models\EmailVerification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\EmailVerificationOtpMail;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Events\PasswordReset;
 
 class AuthController extends Controller
 {
@@ -43,6 +47,8 @@ class AuthController extends Controller
 
         DB::beginTransaction();
 
+        
+
         try {
 
             // Create User
@@ -54,6 +60,8 @@ class AuthController extends Controller
                 'password'    => Hash::make($request->password),
                 'role'        => $request->role,
             ]);
+
+
 
             // Generate 6-digit OTP
             $otp = random_int(100000, 999999);
@@ -71,9 +79,11 @@ class AuthController extends Controller
             /*
             |--------------------------------------------------------------------------
             | Send OTP Email
-            |--------------------------------------------------------------------------
-            | We'll implement this in the next step.
             */
+
+            Mail::to($user->email)->send(
+                new EmailVerificationOtpMail($user, $otp)
+            );
 
             DB::commit();
 

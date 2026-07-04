@@ -2,10 +2,9 @@
 
 namespace App\Mail;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -15,11 +14,22 @@ class EmailVerificationOtpMail extends Mailable
     use Queueable, SerializesModels;
 
     /**
+     * User instance.
+     */
+    public User $user;
+
+    /**
+     * OTP Code.
+     */
+    public string $otp;
+
+    /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(User $user, string $otp)
     {
-        //
+        $this->user = $user;
+        $this->otp = $otp;
     }
 
     /**
@@ -28,7 +38,7 @@ class EmailVerificationOtpMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Email Verification Otp Mail',
+            subject: 'Verify Your Email - Human Resource Management System',
         );
     }
 
@@ -38,14 +48,16 @@ class EmailVerificationOtpMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.email-verification-otp',
+            with: [
+                'user' => $this->user,
+                'otp' => $this->otp,
+            ],
         );
     }
 
     /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, Attachment>
+     * Get the attachments.
      */
     public function attachments(): array
     {
