@@ -12,28 +12,78 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
+
             $table->id();
+
+            // Employee Information
+            $table->string('employee_id')->unique();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('phone')->nullable();
+
+            // Authentication
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // Role
+            $table->enum('role', ['admin', 'employee'])->default('employee');
+
+            // Profile
+            $table->string('profile_photo')->nullable();
+            $table->date('date_of_birth')->nullable();
+            $table->enum('gender', ['Male', 'Female', 'Other'])->nullable();
+
+            // Organization
+            $table->string('department')->nullable();
+            $table->string('designation')->nullable();
+            $table->date('joining_date')->nullable();
+
+            // Address
+            $table->text('address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('country')->nullable();
+            $table->string('postal_code')->nullable();
+
+            // Employment Status
+            $table->enum('employment_status', [
+                'Active',
+                'Inactive',
+                'On Leave',
+                'Resigned'
+            ])->default('Active');
+
+            // Emergency Contact
+            $table->string('emergency_contact_name')->nullable();
+            $table->string('emergency_contact_phone')->nullable();
+            $table->string('emergency_contact_relation')->nullable();
+
+            // Device Information (Optional)
+            $table->string('device_id')->nullable();
+
+            // Remember Token
             $table->rememberToken();
+
             $table->timestamps();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
+
             $table->string('email')->primary();
             $table->string('token');
             $table->timestamp('created_at')->nullable();
+
         });
 
         Schema::create('sessions', function (Blueprint $table) {
+
             $table->string('id')->primary();
             $table->foreignId('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
             $table->integer('last_activity')->index();
+
         });
     }
 
