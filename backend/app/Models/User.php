@@ -13,7 +13,7 @@ use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use App\Models\Payroll;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable,HasApiTokens;
