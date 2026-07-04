@@ -8,13 +8,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EmployeeMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  Closure(Request): (Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
+        if (!auth()->check()) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ],401);
+
+        }
+
+        if (auth()->user()->role != 'employee') {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Access denied. Employee only.'
+            ],403);
+
+        }
+
         return $next($request);
     }
 }

@@ -8,9 +8,9 @@ use App\Http\Controllers\Api\PayrollController;
 use App\Http\Controllers\Api\DashboardController;
 
 /*
-|--------------------------------------------------------------------------
+
 | API Routes
-|--------------------------------------------------------------------------
+
 */
 
 // Public Routes
@@ -35,13 +35,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+    /*Dashboard Routes
+    */
+    Route::middleware('admin')->prefix('dashboard')->group(function () {
+    
+        Route::get('/admin',[DashboardController::class,'adminDashboard']);
+    
+    });
+    
+    Route::middleware('employee')->prefix('dashboard')->group(function () {
+    
+        Route::get('/employee',[DashboardController::class,'employeeDashboard']);
+    
+    });
 /*
-|--------------------------------------------------------------------------
-| Attendance Routes
-|--------------------------------------------------------------------------
+Attendance Routes
 */
 
-Route::prefix('attendance')->group(function () {
+Route::middleware('employee')->prefix('attendance')->group(function () {
 
     Route::get('/', [AttendanceController::class, 'index']);
 
@@ -60,12 +72,10 @@ Route::prefix('attendance')->group(function () {
 });
 
 /*
-|--------------------------------------------------------------------------
-| Leave Routes
-|--------------------------------------------------------------------------
+Leave Routes
 */
 
-Route::prefix('leave')->group(function () {
+Route::middleware('employee')->prefix('leave')->group(function () {
 
     Route::get('/', [LeaveRequestController::class, 'index']);
 
@@ -82,12 +92,10 @@ Route::prefix('leave')->group(function () {
 });
 
 /*
-|--------------------------------------------------------------------------
-| Payroll Routes
-|--------------------------------------------------------------------------
+Payroll Routes
 */
 
-Route::prefix('payroll')->group(function () {
+Route::middleware('employee')->prefix('payroll')->group(function () {
 
     Route::get('/', [PayrollController::class, 'index']);
 
