@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\LeaveRequest;
 use App\Models\Department;
 use App\Models\Payroll;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -62,7 +63,7 @@ class DashboardController extends Controller
      */
     public function employeeDashboard()
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
         return response()->json([
 
