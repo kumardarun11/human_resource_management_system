@@ -6,11 +6,12 @@ use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\LeaveRequestController;
 use App\Http\Controllers\Api\PayrollController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\EmployeeController;
 
 /*
-
+|--------------------------------------------------------------------------
 | API Routes
-
+|--------------------------------------------------------------------------
 */
 
 // Public Routes
@@ -35,25 +36,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-
-    /*Dashboard Routes
-    */
-    Route::middleware('admin')->prefix('dashboard')->group(function () {
-    
-        Route::get('/admin',[DashboardController::class,'adminDashboard']);
-    
-    });
-    
-    Route::middleware('employee')->prefix('dashboard')->group(function () {
-    
-        Route::get('/employee',[DashboardController::class,'employeeDashboard']);
-    
-    });
 /*
-Attendance Routes
+|--------------------------------------------------------------------------
+| Attendance Routes
+|--------------------------------------------------------------------------
 */
 
-Route::middleware('employee')->prefix('attendance')->group(function () {
+Route::prefix('attendance')->group(function () {
 
     Route::get('/', [AttendanceController::class, 'index']);
 
@@ -72,10 +61,12 @@ Route::middleware('employee')->prefix('attendance')->group(function () {
 });
 
 /*
-Leave Routes
+|--------------------------------------------------------------------------
+| Leave Routes
+|--------------------------------------------------------------------------
 */
 
-Route::middleware('employee')->prefix('leave')->group(function () {
+Route::prefix('leave')->group(function () {
 
     Route::get('/', [LeaveRequestController::class, 'index']);
 
@@ -92,16 +83,39 @@ Route::middleware('employee')->prefix('leave')->group(function () {
 });
 
 /*
-Payroll Routes
+|--------------------------------------------------------------------------
+| Payroll Routes
+|--------------------------------------------------------------------------
 */
 
-Route::middleware('employee')->prefix('payroll')->group(function () {
+Route::prefix('payroll')->group(function () {
 
     Route::get('/', [PayrollController::class, 'index']);
 
     Route::get('/{id}', [PayrollController::class, 'show']);
 
     Route::get('/download/{id}', [PayrollController::class, 'downloadPayslip']);
+
+});
+Route::middleware('employee')->group(function(){
+
+    Route::get('/employee/profile',[EmployeeController::class,'profile']);
+
+    Route::put('/employee/profile',[EmployeeController::class,'updateProfile']);
+
+});
+
+Route::middleware('admin')->group(function(){
+
+    Route::get('/employees',[EmployeeController::class,'index']);
+
+    Route::get('/employees/{id}',[EmployeeController::class,'show']);
+
+    Route::post('/employees',[EmployeeController::class,'store']);
+
+    Route::put('/employees/{id}',[EmployeeController::class,'update']);
+
+    Route::delete('/employees/{id}',[EmployeeController::class,'destroy']);
 
 });
 
