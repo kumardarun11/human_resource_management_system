@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\LeaveRequestController;
 use App\Http\Controllers\Api\PayrollController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\EmployeeController;
+use App\Http\Controllers\Api\AdminController;
+use App\Http\Controllers\Api\DepartmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -118,5 +120,36 @@ Route::middleware('admin')->group(function(){
     Route::delete('/employees/{id}',[EmployeeController::class,'destroy']);
 
 });
+/*
+|--------------------------------------------------------------------------
+| Admin Routes
+|--------------------------------------------------------------------------
+*/
 
+Route::middleware('admin')->prefix('admin')->group(function () {
+
+    Route::get('/employees',[AdminController::class,'index']);
+
+    Route::post('/employees',[AdminController::class,'store']);
+
+    Route::get('/employees/{id}',[AdminController::class,'show']);
+
+    Route::put('/employees/{id}',[AdminController::class,'update']);
+
+    Route::delete('/employees/{id}',[AdminController::class,'destroy']);
+
+});
+Route::middleware('admin')->prefix('departments')->group(function(){
+
+    Route::get('/',[DepartmentController::class,'index']);
+
+    Route::post('/',[DepartmentController::class,'store']);
+
+    Route::get('/{id}',[DepartmentController::class,'show']);
+
+    Route::put('/{id}',[DepartmentController::class,'update']);
+
+    Route::delete('/{id}',[DepartmentController::class,'destroy']);
+
+});
 });
