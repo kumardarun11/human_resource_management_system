@@ -152,4 +152,15 @@ Route::middleware('admin')->prefix('departments')->group(function(){
     Route::delete('/{id}',[DepartmentController::class,'destroy']);
 
 });
+Route::middleware('employee')->group(function () {
+
+    Route::get('/dashboard/employee', [DashboardController::class, 'employeeDashboard']);
+
+});
+
+Route::middleware('admin')->group(function () {
+
+    Route::get('/dashboard/admin', [DashboardController::class, 'adminDashboard']);
+
+});
 });

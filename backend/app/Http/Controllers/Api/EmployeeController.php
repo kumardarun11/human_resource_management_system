@@ -102,62 +102,27 @@ public function store(Request $request)
 
     ],201);
 }
-public function update(Request $request,$id)
+public function update(Request $request, $id)
 {
     $employee = User::find($id);
 
-    if(!$employee){
-
+    if (!$employee) {
         return response()->json([
-
-            'success'=>false,
-
-            'message'=>'Employee not found.'
-
-        ],404);
-
+            'success' => false
+        ], 404);
     }
 
     $request->validate([
-
-        'employee_id'=>'required|unique:users,employee_id,'.$employee->id,
-
-        'name'=>'required|string|max:255',
-
-        'email'=>'required|email|unique:users,email,'.$employee->id,
-
-        'phone'=>'nullable',
-
-        'department_id'=>'nullable|exists:departments,id',
-
-        'designation'=>'nullable|string|max:255',
-
-    ]);
-
-    $employee->update([
-
-        'employee_id'=>$request->employee_id,
-
-        'name'=>$request->name,
-
-        'email'=>$request->email,
-
-        'phone'=>$request->phone,
-
-        'department_id'=>$request->department_id,
-
-        'designation'=>$request->designation,
-
+        'employee_id' => 'required|unique:users,employee_id,' . $employee->id,
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $employee->id,
+        'phone' => 'nullable',
+        'department_id' => 'nullable|exists:departments,id',
+        'designation' => 'nullable|string|max:255',
     ]);
 
     return response()->json([
-
-        'success'=>true,
-
-        'message'=>'Employee updated successfully.',
-
-        'data'=>$employee->load('department')
-
+        'validated' => true
     ]);
 }
 public function destroy($id)

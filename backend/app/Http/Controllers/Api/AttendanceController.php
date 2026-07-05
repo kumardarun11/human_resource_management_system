@@ -60,91 +60,86 @@ class AttendanceController extends Controller
     {
         $user = auth()->user();
 
-        // Check if attendance already exists for today
         $attendance = Attendance::where('user_id', $user->id)
             ->whereDate('attendance_date', Carbon::today())
             ->first();
 
         if ($attendance) {
             return response()->json([
-                'success' => false,
-                'message' => 'You have already checked in today.'
-            ], 409);
+                'message' => 'Already checked in'
+            ]);
         }
 
         $checkInTime = Carbon::now();
 
-        // Office starts at 9:15 AM
         $status = $checkInTime->gt(Carbon::today()->setTime(9, 15))
             ? 'Late'
             : 'Present';
 
         $attendance = Attendance::create([
             'user_id' => $user->id,
-            'attendance_date' => Carbon::today(),
+            'attendance_date' => Carbon::today()->toDateString(),
             'check_in' => $checkInTime->format('H:i:s'),
             'status' => $status,
-            'check_in_location' => $request->check_in_location,
             'remarks' => $request->remarks,
+            'check_in_location' => $request->check_in_location,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Checked in successfully.',
-            'data' => $attendance,
-        ], 201);
+            'data' => $attendance
+        ]);
     }
     public function checkOut(CheckOutRequest $request)
     {
         $user = auth()->user();
-
+    
         // Find today's attendance
         $attendance = Attendance::where('user_id', $user->id)
             ->whereDate('attendance_date', Carbon::today())
             ->first();
-
+    
         if (!$attendance) {
             return response()->json([
                 'success' => false,
                 'message' => 'You have not checked in today.'
             ], 404);
         }
-
-        // Prevent multiple checkouts
+    
+        // Prevent multiple check-outs
         if ($attendance->check_out) {
             return response()->json([
                 'success' => false,
                 'message' => 'You have already checked out today.'
             ], 409);
         }
-
+    
         $checkOutTime = Carbon::now();
-
-        // Calculate working hours
+    
         $checkInTime = Carbon::parse($attendance->check_in);
-
+    
         $workingMinutes = $checkInTime->diffInMinutes($checkOutTime);
-
+    
         $workingHours = round($workingMinutes / 60, 2);
-
-        // Update attendance
+    
         $attendance->update([
             'check_out' => $checkOutTime->format('H:i:s'),
             'working_hours' => $workingHours,
             'check_out_location' => $request->check_out_location,
             'remarks' => $request->remarks,
         ]);
-
+    
         // Half Day Logic
         if ($workingHours < 4) {
-            $attendance->status = 'Half Day';
-            $attendance->save();
+            $attendance->update([
+                'status' => 'Half Day'
+            ]);
         }
-
+    
         return response()->json([
             'success' => true,
             'message' => 'Checked out successfully.',
-            'data' => $attendance
+            'data' => $attendance->fresh()
         ]);
     }
     public function attendanceHistory()

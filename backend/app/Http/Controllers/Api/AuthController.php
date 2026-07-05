@@ -81,9 +81,9 @@ class AuthController extends Controller
             | Send OTP Email
             */
 
-            Mail::to($user->email)->send(
-                new EmailVerificationOtpMail($user, $otp)
-            );
+            // Mail::to($user->email)->send(
+            //     new EmailVerificationOtpMail($user, $otp)
+            // );
 
             DB::commit();
 
