@@ -280,6 +280,8 @@ Please ensure code quality, documentation, and testing standards are maintained.
 
 # 📄 License
 
-This project is developed for educational and portfolio purposes.
+This project is licensed under the **MIT License**.
 
-Feel free to explore the source code and learn from the implementation.
+See the [LICENSE](LICENSE) file for complete details.
+
+This project has been developed as an educational and portfolio project. You're welcome to explore the source code, learn from its implementation, and contribute by submitting issues or pull requests.
