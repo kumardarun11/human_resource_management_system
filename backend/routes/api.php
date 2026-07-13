@@ -19,6 +19,10 @@ use App\Http\Controllers\Api\DepartmentController;
 // Public Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/verify-email', [
+    AuthController::class,
+    'verifyEmail'
+]);
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -30,8 +34,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
     Route::post('/refresh-token', [AuthController::class, 'refreshToken']);
-
-    Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
 
     Route::post('/resend-verification', [AuthController::class, 'resendVerificationEmail']);
 

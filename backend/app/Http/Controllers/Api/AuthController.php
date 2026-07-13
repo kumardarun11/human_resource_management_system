@@ -208,19 +208,68 @@ class AuthController extends Controller
      */
     public function verifyEmail(Request $request): JsonResponse
     {
-        if ($request->user()->hasVerifiedEmail()) {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'otp' => 'required|digits:6',
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+    
+        $user = User::find($request->user_id);
+    
+        $verification = EmailVerification::where(
+            'user_id',
+            $user->id
+        )->first();
+    
+        if (!$verification) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Verification request not found.',
+            ], 404);
+        }
+    
+        if ($verification->is_verified) {
             return response()->json([
                 'success' => true,
-                'message' => 'Email already verified'
-            ]);
+                'message' => 'Email already verified.',
+            ], 200);
         }
-
-        $request->user()->markEmailAsVerified();
-
+    
+        if ($verification->isExpired()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'OTP has expired.',
+            ], 410);
+        }
+    
+        if ((string) $verification->otp !== (string) $request->otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid OTP.',
+            ], 422);
+        }
+    
+        DB::transaction(function () use ($user, $verification) {
+    
+            $user->markEmailAsVerified();
+    
+            $verification->update([
+                'is_verified' => true,
+            ]);
+    
+        });
+    
         return response()->json([
             'success' => true,
-            'message' => 'Email verified successfully'
-        ]);
+            'message' => 'Email verified successfully.',
+        ], 200);
     }
 
     /**
