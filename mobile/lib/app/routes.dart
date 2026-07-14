@@ -6,6 +6,8 @@ import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/auth/otp_verification_screen.dart';
+import '../features/auth/forgot_password_screen.dart';
+import '../features/auth/change_password_screen.dart';
 import '../features/dashboard/employee_dashboard_screen.dart';
 import '../features/dashboard/admin_dashboard_screen.dart';
 import '../features/profile/employee_profile_screen.dart';
@@ -21,7 +23,6 @@ import '../features/admin/leave/leave_request_screen.dart';
 import '../features/admin/attendance/admin_attendance_screen.dart';
 import '../features/admin/payroll/admin_payroll_screen.dart';
 
-
 class AppRoutes {
   AppRoutes._();
 
@@ -29,33 +30,29 @@ class AppRoutes {
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-
-    // Splash
+      // Splash
       case RouteNames.splash:
-        return MaterialPageRoute(
-          builder: (_) => const SplashScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
 
-    // Register
+      // Register
       case RouteNames.register:
-        return MaterialPageRoute(
-          builder: (_) => const RegisterScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const RegisterScreen());
 
-    // Login
+      // Login
       case RouteNames.login:
-        return MaterialPageRoute(
-          builder: (_) => const LoginScreen(),
-        );
+        return MaterialPageRoute(builder: (_) => const LoginScreen());
+      case RouteNames.forgotPassword:
+        return MaterialPageRoute(builder: (_) => const ForgotPasswordScreen());
 
-    /*// =========================
+      case RouteNames.changePassword:
+        return MaterialPageRoute(builder: (_) => const ChangePasswordScreen());
+      /*// =========================
     // Onboarding
     // =========================
       case RouteNames.onboarding:
         return MaterialPageRoute(
           builder: (_) => const OnboardingScreen(),
         );
-
 
     // OTP Verification
       case RouteNames.otpVerification:
@@ -64,7 +61,7 @@ class AppRoutes {
         );*/
       case RouteNames.otpVerification:
         final args = settings.arguments as Map<String, dynamic>;
-      
+
         return MaterialPageRoute(
           builder: (_) => OtpVerificationScreen(
             userId: args['user_id'] as int,
@@ -72,107 +69,74 @@ class AppRoutes {
           ),
         );
 
-    // Employee Dashboard
-    case RouteNames.employeeDashboard:
-      return MaterialPageRoute(
-        builder: (_) => const EmployeeDashboardScreen(),
-      );
-    
-    // Admin Dashboard
-    case RouteNames.adminDashboard:
-      return MaterialPageRoute(
-        builder: (_) => const AdminDashboardScreen(),
-      );
+      // Employee Dashboard
+      case RouteNames.employeeDashboard:
+        return MaterialPageRoute(
+          builder: (_) => const EmployeeDashboardScreen(),
+        );
 
-    // Employee Profile
-    case RouteNames.employeeProfile:
-      return MaterialPageRoute(
-        builder: (_) => const EmployeeProfileScreen(),
-      );
+      // Admin Dashboard
+      case RouteNames.adminDashboard:
+        return MaterialPageRoute(builder: (_) => const AdminDashboardScreen());
 
-    // Attendance
-    case RouteNames.attendance:
-      return MaterialPageRoute(
-        builder: (_) => const AttendanceScreen(),
-      );
+      // Employee Profile
+      case RouteNames.employeeProfile:
+        return MaterialPageRoute(builder: (_) => const EmployeeProfileScreen());
 
-    // Leave
-    case RouteNames.applyLeave:
-      return MaterialPageRoute(
-        builder: (_) => const ApplyLeaveScreen(),
-      );
+      // Attendance
+      case RouteNames.attendance:
+        return MaterialPageRoute(builder: (_) => const AttendanceScreen());
 
-    case RouteNames.leaveHistory:
-      return MaterialPageRoute(
-        builder: (_) => const LeaveHistoryScreen(),
-      );
-    
-    // Payroll
-    case RouteNames.payroll:
-      return MaterialPageRoute(
-        builder: (_) => const PayrollScreen(),
-      );
+      // Leave
+      case RouteNames.applyLeave:
+        return MaterialPageRoute(builder: (_) => const ApplyLeaveScreen());
 
-    case RouteNames.payslip:
-      final payrollId = settings.arguments as int;
+      case RouteNames.leaveHistory:
+        return MaterialPageRoute(builder: (_) => const LeaveHistoryScreen());
 
-      return MaterialPageRoute(
-        builder: (_) => PayslipScreen(
-          payrollId: payrollId,
-        ),
-      );
-    case RouteNames.employees:
-      return MaterialPageRoute(
-        builder: (_) => const EmployeeListScreen(),
-      );
+      // Payroll
+      case RouteNames.payroll:
+        return MaterialPageRoute(builder: (_) => const PayrollScreen());
 
-    case RouteNames.addEmployee:
-      return MaterialPageRoute(
-        builder: (_) => const EmployeeFormScreen(),
-      );
+      case RouteNames.payslip:
+        final payrollId = settings.arguments as int;
 
-    case RouteNames.editEmployee:
-      final employeeId = settings.arguments as int;
+        return MaterialPageRoute(
+          builder: (_) => PayslipScreen(payrollId: payrollId),
+        );
+      case RouteNames.employees:
+        return MaterialPageRoute(builder: (_) => const EmployeeListScreen());
 
-      return MaterialPageRoute(
-        builder: (_) => EmployeeFormScreen(
-          employeeId: employeeId,
-        ),
-      );
+      case RouteNames.addEmployee:
+        return MaterialPageRoute(builder: (_) => const EmployeeFormScreen());
 
-    case RouteNames.departments:
-      return MaterialPageRoute(
-        builder: (_) => const DepartmentScreen(),
-      );
+      case RouteNames.editEmployee:
+        final employeeId = settings.arguments as int;
 
-    case RouteNames.leaveRequests:
-      return MaterialPageRoute(
-        builder: (_) => const LeaveRequestScreen(),
-      );
-    case RouteNames.adminAttendance:
-      return MaterialPageRoute(
-        builder: (_) => const AdminAttendanceScreen(),
-      );
-    
-    case RouteNames.adminPayroll:
-      return MaterialPageRoute(
-        builder: (_) => const AdminPayrollScreen(),
-      );
-    // Default
+        return MaterialPageRoute(
+          builder: (_) => EmployeeFormScreen(employeeId: employeeId),
+        );
+
+      case RouteNames.departments:
+        return MaterialPageRoute(builder: (_) => const DepartmentScreen());
+
+      case RouteNames.leaveRequests:
+        return MaterialPageRoute(builder: (_) => const LeaveRequestScreen());
+      case RouteNames.adminAttendance:
+        return MaterialPageRoute(builder: (_) => const AdminAttendanceScreen());
+
+      case RouteNames.adminPayroll:
+        return MaterialPageRoute(builder: (_) => const AdminPayrollScreen());
+      // Default
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
-            appBar: AppBar(
-              title: const Text('Page Not Found'),
-            ),
+            appBar: AppBar(title: const Text('Page Not Found')),
             body: const Center(
               child: Text(
                 '404\nPage Not Found',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
               ),
             ),
           ),

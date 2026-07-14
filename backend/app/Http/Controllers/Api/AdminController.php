@@ -63,6 +63,8 @@ public function store(StoreEmployeeRequest $request)
 
         'email'=>$request->email,
 
+        'email_verified_at' => now(),
+
         'password'=>Hash::make($request->password),
 
         'phone'=>$request->phone,
@@ -153,5 +155,4 @@ public function store(StoreEmployeeRequest $request)
 
     ]);
 }
-
 }

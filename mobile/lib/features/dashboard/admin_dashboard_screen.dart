@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../app/route_names.dart';
-import '../../core/storage/auth_storage.dart';
+import '../auth/services/auth_service.dart';
 import 'services/dashboard_service.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  State<AdminDashboardScreen> createState() =>
-      _AdminDashboardScreenState();
+  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
 }
 
-class _AdminDashboardScreenState
-    extends State<AdminDashboardScreen> {
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   bool isLoading = true;
   String? error;
   Map<String, dynamic> data = {};
@@ -26,15 +24,12 @@ class _AdminDashboardScreenState
 
   Future<void> _loadDashboard() async {
     try {
-      final response =
-          await DashboardService.getAdminDashboard();
+      final response = await DashboardService.getAdminDashboard();
 
       if (!mounted) return;
 
       setState(() {
-        data = Map<String, dynamic>.from(
-          response['data'] ?? {},
-        );
+        data = Map<String, dynamic>.from(response['data'] ?? {});
 
         isLoading = false;
       });
@@ -49,7 +44,39 @@ class _AdminDashboardScreenState
   }
 
   Future<void> _logout() async {
-    await AuthStorage.clear();
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Logout'),
+          content: const Text('Are you sure you want to logout?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldLogout != true) {
+      return;
+    }
+
+    try {
+      await AuthService.logout();
+    } catch (_) {
+      // AuthService still clears local auth in finally.
+    }
 
     if (!mounted) return;
 
@@ -68,37 +95,22 @@ class _AdminDashboardScreenState
           children: [
             Text(
               value?.toString() ?? '0',
-              style: const TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 6),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-            ),
+            Text(title, textAlign: TextAlign.center),
           ],
         ),
       ),
     );
   }
 
-  Widget _menu(
-    IconData icon,
-    String title,
-    String route,
-  ) {
+  Widget _menu(IconData icon, String title, String route) {
     return Card(
       child: ListTile(
-        leading: CircleAvatar(
-          child: Icon(icon),
-        ),
+        leading: CircleAvatar(child: Icon(icon)),
         title: Text(title),
-        trailing: const Icon(
-          Icons.arrow_forward_ios,
-          size: 16,
-        ),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: () {
           Navigator.pushNamed(context, route);
         },
@@ -116,95 +128,67 @@ class _AdminDashboardScreenState
             onPressed: _loadDashboard,
             icon: const Icon(Icons.refresh),
           ),
-          IconButton(
-            onPressed: _logout,
-            icon: const Icon(Icons.logout),
-          ),
+          IconButton(onPressed: _logout, icon: const Icon(Icons.logout)),
         ],
       ),
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : error != null
-              ? Center(
-                  child: Text(error!),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadDashboard,
-                  child: ListView(
-                    padding: const EdgeInsets.all(20),
+          ? Center(child: Text(error!))
+          : RefreshIndicator(
+              onRefresh: _loadDashboard,
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  const Text(
+                    'HRMS Administration',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 20),
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    childAspectRatio: 1.5,
                     children: [
-                      const Text(
-                        'HRMS Administration',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      GridView.count(
-                        crossAxisCount: 2,
-                        shrinkWrap: true,
-                        physics:
-                            const NeverScrollableScrollPhysics(),
-                        childAspectRatio: 1.5,
-                        children: [
-                          _statCard(
-                            'Employees',
-                            data['total_employees'],
-                          ),
-                          _statCard(
-                            'Departments',
-                            data['total_departments'],
-                          ),
-                          _statCard(
-                            'Attendance',
-                            data['attendance_records'],
-                          ),
-                          _statCard(
-                            'Leave Requests',
-                            data['leave_requests'],
-                          ),
-                          _statCard(
-                            'Payroll',
-                            data['payroll_records'],
-                          ),
-                          _statCard(
-                            'Present Today',
-                            data['present_today'],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      _menu(
-                        Icons.people,
-                        'Employee Management',
-                        RouteNames.employees,
-                      ),
-                      _menu(
-                        Icons.business,
-                        'Departments',
-                        RouteNames.departments,
-                      ),
-                      _menu(
-                        Icons.access_time,
-                        'Attendance Management',
-                        RouteNames.adminAttendance,
-                      ),
-                      _menu(
-                        Icons.event_note,
-                        'Leave Requests',
-                        RouteNames.leaveRequests,
-                      ),
-                      _menu(
-                        Icons.payments,
-                        'Payroll Management',
-                        RouteNames.adminPayroll,
-                      ),
+                      _statCard('Employees', data['total_employees']),
+                      _statCard('Departments', data['total_departments']),
+                      _statCard('Attendance', data['attendance_records']),
+                      _statCard('Leave Requests', data['leave_requests']),
+                      _statCard('Payroll', data['payroll_records']),
+                      _statCard('Present Today', data['present_today']),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 24),
+                  _menu(
+                    Icons.people,
+                    'Employee Management',
+                    RouteNames.employees,
+                  ),
+                  _menu(Icons.business, 'Departments', RouteNames.departments),
+                  _menu(
+                    Icons.access_time,
+                    'Attendance Management',
+                    RouteNames.adminAttendance,
+                  ),
+                  _menu(
+                    Icons.event_note,
+                    'Leave Requests',
+                    RouteNames.leaveRequests,
+                  ),
+                  _menu(
+                    Icons.payments,
+                    'Payroll Management',
+                    RouteNames.adminPayroll,
+                  ),
+                  _menu(
+                    Icons.lock_outline,
+                    'Change Password',
+                    RouteNames.changePassword,
+                  ),
+                ],
+              ),
+            ),
     );
   }
 }

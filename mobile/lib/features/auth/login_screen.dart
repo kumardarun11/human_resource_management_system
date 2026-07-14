@@ -4,8 +4,6 @@ import '../../core/storage/auth_storage.dart';
 import 'services/auth_service.dart';
 import '../../app/route_names.dart';
 
-
-
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -14,12 +12,7 @@ class LoginScreen extends StatelessWidget {
     return const Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            LoginHeader(),
-            LoginForm(),
-          ],
-        ),
+        child: Column(children: [LoginHeader(), LoginForm()]),
       ),
     );
   }
@@ -38,7 +31,6 @@ class LoginHeader extends StatelessWidget {
       color: Colors.white,
       child: Stack(
         children: [
-
           /// Right Background Circle
           Positioned(
             right: -180,
@@ -55,15 +47,10 @@ class LoginHeader extends StatelessWidget {
 
           /// Left Content
           Padding(
-            padding: const EdgeInsets.only(
-              left: 16,
-              top: 60,
-              right: 10,
-            ),
+            padding: const EdgeInsets.only(left: 16, top: 60, right: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 const Text(
                   "HRMS",
                   style: TextStyle(
@@ -148,8 +135,9 @@ class _LoginFormState extends State<LoginForm> {
       );
 
       final String token = response['access_token'];
-      final Map<String, dynamic> user =
-          Map<String, dynamic>.from(response['user']);
+      final Map<String, dynamic> user = Map<String, dynamic>.from(
+        response['user'],
+      );
 
       final String role = user['role'];
       final int userId = user['id'];
@@ -170,11 +158,7 @@ class _LoginFormState extends State<LoginForm> {
         return;
       }
 
-      await AuthStorage.saveAuth(
-        token: token,
-        role: role,
-        userId: userId,
-      );
+      await AuthStorage.saveAuth(token: token, role: role, userId: userId);
 
       if (!mounted) return;
 
@@ -194,13 +178,9 @@ class _LoginFormState extends State<LoginForm> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Login failed: ${e.toString()}',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Login failed: ${e.toString()}')));
     } finally {
       if (mounted) {
         setState(() {
@@ -209,6 +189,7 @@ class _LoginFormState extends State<LoginForm> {
       }
     }
   }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -238,10 +219,7 @@ class _LoginFormState extends State<LoginForm> {
 
             const Text(
               "Enter your credentials to access your account",
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
 
             const SizedBox(height: 10),
@@ -249,10 +227,7 @@ class _LoginFormState extends State<LoginForm> {
             /// Email
             const Text(
               "Email",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
 
             const SizedBox(height: 2),
@@ -264,15 +239,15 @@ class _LoginFormState extends State<LoginForm> {
                 if (value == null || value.trim().isEmpty) {
                   return "Please enter your email";
                 }
-              
+
                 final emailRegex = RegExp(
                   r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$',
                 );
-              
+
                 if (!emailRegex.hasMatch(value.trim())) {
                   return "Please enter a valid email";
                 }
-              
+
                 return null;
               },
               decoration: InputDecoration(
@@ -281,13 +256,10 @@ class _LoginFormState extends State<LoginForm> {
                   Icons.email_outlined,
                   color: Color(0xff8E3A8C),
                 ),
-                contentPadding:
-                const EdgeInsets.symmetric(vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(
-                    color: Color(0xffE5E5EA),
-                  ),
+                  borderSide: const BorderSide(color: Color(0xffE5E5EA)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -312,10 +284,7 @@ class _LoginFormState extends State<LoginForm> {
             /// Password
             const Text(
               "Password",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
 
             const SizedBox(height: 2),
@@ -348,13 +317,10 @@ class _LoginFormState extends State<LoginForm> {
                     });
                   },
                 ),
-                contentPadding:
-                const EdgeInsets.symmetric(vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(
-                    color: Color(0xffE5E5EA),
-                  ),
+                  borderSide: const BorderSide(color: Color(0xffE5E5EA)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -379,7 +345,11 @@ class _LoginFormState extends State<LoginForm> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () {},
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        Navigator.pushNamed(context, RouteNames.forgotPassword);
+                      },
                 child: const Text(
                   "Forgot Password?",
                   style: TextStyle(
@@ -397,11 +367,11 @@ class _LoginFormState extends State<LoginForm> {
               height: 40,
               width: double.infinity,
               child: ElevatedButton(
-              onPressed: _isLoading
-                  ? null
-                  : () {
-                      _login(expectedRole: 'employee');
-                    },
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        _login(expectedRole: 'employee');
+                      },
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   backgroundColor: const Color(0xff8E3A8C),
@@ -430,10 +400,7 @@ class _LoginFormState extends State<LoginForm> {
                             ),
                           ),
                           Spacer(),
-                          Icon(
-                            Icons.arrow_forward,
-                            color: Colors.white,
-                          ),
+                          Icon(Icons.arrow_forward, color: Colors.white),
                         ],
                       ),
               ),
@@ -448,9 +415,7 @@ class _LoginFormState extends State<LoginForm> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: Text(
                     "or",
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                    ),
+                    style: TextStyle(color: Colors.grey.shade700),
                   ),
                 ),
                 const Expanded(child: Divider()),
@@ -481,9 +446,7 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(
-                    color: Color(0xffC98BC6),
-                  ),
+                  side: const BorderSide(color: Color(0xffC98BC6)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -496,14 +459,9 @@ class _LoginFormState extends State<LoginForm> {
             Center(
               child: RichText(
                 text: TextSpan(
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontSize: 16,
-                  ),
+                  style: const TextStyle(color: Colors.black87, fontSize: 16),
                   children: [
-                    const TextSpan(
-                      text: "Don't have an account? ",
-                    ),
+                    const TextSpan(text: "Don't have an account? "),
                     TextSpan(
                       text: "Sign Up",
                       style: const TextStyle(
@@ -512,10 +470,7 @@ class _LoginFormState extends State<LoginForm> {
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
-                          Navigator.pushNamed(
-                            context,
-                            RouteNames.register,
-                          );
+                          Navigator.pushNamed(context, RouteNames.register);
                         },
                     ),
                   ],
@@ -528,5 +483,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-
-

@@ -25,6 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'employee_id',
         'name',
         'email',
+        'email_verified_at',
         'phone',
         'password',
         'role',
@@ -115,7 +116,6 @@ class User extends Authenticatable implements MustVerifyEmail
     | Helper Methods
     |--------------------------------------------------------------------------
     */
-
     /**
      * Check if the user is an Admin.
      */

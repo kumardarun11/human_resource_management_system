@@ -1,9 +1,10 @@
-import 'dart:async';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mobile/app/route_names.dart';
+
+import '../../core/storage/auth_storage.dart';
+import '../auth/services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,67 +14,105 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
+
     _initializeApp();
   }
 
   Future<void> _initializeApp() async {
+    await Future.delayed(const Duration(seconds: 2));
 
-    await Future.delayed(const Duration(seconds: 5));
-
-    final prefs = await SharedPreferences.getInstance();
-
-    final token = prefs.getString('access_token');
-    final role = prefs.getString('role');
+    final token = await AuthStorage.getToken();
 
     if (!mounted) return;
 
-    // User not logged in
     if (token == null || token.isEmpty) {
-      Navigator.pushReplacementNamed(
-        context,
-        RouteNames.login,
-      );
+      _goToLogin();
+
       return;
     }
 
-    // Logged in
-    if (role == 'admin') {
-      Navigator.pushReplacementNamed(
-        context,
-        RouteNames.adminDashboard,
-      );
-    } else {
-      Navigator.pushReplacementNamed(
-        context,
-        RouteNames.employeeDashboard,
-      );
+    try {
+      final response = await AuthService.getProfile();
+
+      final user = response['user'];
+
+      if (user is! Map) {
+        await AuthStorage.clear();
+
+        if (!mounted) return;
+
+        _goToLogin();
+
+        return;
+      }
+
+      final userMap = Map<String, dynamic>.from(user);
+
+      final role = userMap['role']?.toString();
+
+      final userId = int.tryParse(userMap['id']?.toString() ?? '');
+
+      if (role == null || userId == null) {
+        await AuthStorage.clear();
+
+        if (!mounted) return;
+
+        _goToLogin();
+
+        return;
+      }
+
+      await AuthStorage.saveAuth(token: token, role: role, userId: userId);
+
+      if (!mounted) return;
+
+      if (role == 'admin') {
+        Navigator.pushReplacementNamed(context, RouteNames.adminDashboard);
+
+        return;
+      }
+
+      if (role == 'employee') {
+        Navigator.pushReplacementNamed(context, RouteNames.employeeDashboard);
+
+        return;
+      }
+
+      await AuthStorage.clear();
+
+      if (!mounted) return;
+
+      _goToLogin();
+    } on DioException {
+      await AuthStorage.clear();
+
+      if (!mounted) return;
+
+      _goToLogin();
+    } catch (_) {
+      await AuthStorage.clear();
+
+      if (!mounted) return;
+
+      _goToLogin();
     }
+  }
+
+  void _goToLogin() {
+    Navigator.pushReplacementNamed(context, RouteNames.login);
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
       backgroundColor: Colors.white,
-
       body: Stack(
-
         fit: StackFit.expand,
-
         children: [
-
-          /// Splash Image
-          Image.asset(
-            'assets/images/splash.png',
-            fit: BoxFit.cover,
-          ),
-
-          /// Loader
+          Image.asset('assets/images/splash.png', fit: BoxFit.cover),
           const Positioned(
             left: 0,
             right: 0,
@@ -82,13 +121,10 @@ class _SplashScreenState extends State<SplashScreen> {
               child: SizedBox(
                 height: 28,
                 width: 28,
-                child: CircularProgressIndicator(
-                  strokeWidth: 3,
-                ),
+                child: CircularProgressIndicator(strokeWidth: 3),
               ),
             ),
           ),
-
         ],
       ),
     );

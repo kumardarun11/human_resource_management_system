@@ -275,49 +275,121 @@ class AuthController extends Controller
     /**
      * Forgot Password
      */
-    public function forgotPassword(Request $request): JsonResponse
-    {
-        $request->validate(['email' => 'required|email']);
+    /**
+     * Send Password Reset Link
+     */
+    public function forgotPassword(
+        Request $request
+    ): JsonResponse {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'email' => [
+                    'required',
+                    'email',
+                ],
+            ]
+        );
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user) {
+        if ($validator->fails()) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found'
-            ], 404);
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
-        // Here you would typically send a password reset email
-        // For now, we'll just return a success message
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        if ($status !== Password::RESET_LINK_SENT) {
+            return response()->json([
+                'success' => false,
+                'message' => __($status),
+            ], 400);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Password reset email sent successfully'
+            'message' =>
+                'Password reset link sent successfully.',
         ]);
-
     }
 
     /**
-     * Reset Password
+     * Reset User Password
      */
-    public function resetPassword(Request $request): JsonResponse
-    {
-        $request->validate([
-            'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+    public function resetPassword(
+        Request $request
+    ): JsonResponse {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'token' => [
+                    'required',
+                    'string',
+                ],
+                'email' => [
+                    'required',
+                    'email',
+                ],
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8',
+                    'confirmed',
+                ],
+            ]
+        );
 
-        // Here you would typically verify the token and reset the password
-        // For now, we'll just return a success message
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $status = Password::reset(
+            $request->only(
+                'email',
+                'password',
+                'password_confirmation',
+                'token'
+            ),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                ]);
+
+                $user->setRememberToken(
+                    Str::random(60)
+                );
+
+                $user->save();
+
+                $user->tokens()->delete();
+
+                event(
+                    new PasswordReset($user)
+                );
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            return response()->json([
+                'success' => false,
+                'message' => __($status),
+            ], 400);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Password reset successfully'
+            'message' =>
+                'Password reset successfully.',
         ]);
     }
-
     /**
      * Get Logged In User Profile
      */
