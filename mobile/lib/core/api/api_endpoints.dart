@@ -51,6 +51,7 @@ class ApiEndpoints {
   
 
   static const String attendance = "/attendance";
+  static const String adminAttendance = "/attendance";
 
   
   // Leave Management
@@ -63,6 +64,7 @@ class ApiEndpoints {
   
 
   static const String payroll = "/payroll";
+  static const String adminPayroll = "/payroll";
 
   
   // Admin - Employee Management

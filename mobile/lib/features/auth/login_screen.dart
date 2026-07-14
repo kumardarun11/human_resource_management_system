@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile/features/auth/register_screen.dart';
 import '../../core/storage/auth_storage.dart';
 import 'services/auth_service.dart';
 import '../../app/route_names.dart';

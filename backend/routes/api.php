@@ -94,11 +94,29 @@ Route::prefix('leave')->group(function () {
 
 Route::prefix('payroll')->group(function () {
 
-    Route::get('/', [PayrollController::class, 'index']);
+    Route::get('/', [
+        PayrollController::class,
+        'index'
+    ]);
 
-    Route::get('/{id}', [PayrollController::class, 'show']);
+    Route::middleware('admin')->group(function () {
 
-    Route::get('/download/{id}', [PayrollController::class, 'downloadPayslip']);
+        Route::post('/', [
+            PayrollController::class,
+            'store'
+        ]);
+
+    });
+
+    Route::get('/download/{id}', [
+        PayrollController::class,
+        'downloadPayslip'
+    ]);
+
+    Route::get('/{id}', [
+        PayrollController::class,
+        'show'
+    ]);
 
 });
 Route::middleware('employee')->group(function(){
