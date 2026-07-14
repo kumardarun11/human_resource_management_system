@@ -14,6 +14,10 @@ import '../features/leave/apply_leave_screen.dart';
 import '../features/leave/leave_history_screen.dart';
 import '../features/payroll/payroll_screen.dart';
 import '../features/payroll/payslip_screen.dart';
+import '../features/admin/employees/employee_list_screen.dart';
+import '../features/admin/employees/employee_form_screen.dart';
+import '../features/admin/departments/department_screen.dart';
+import '../features/admin/leave/leave_request_screen.dart';
 
 
 class AppRoutes {
@@ -115,7 +119,34 @@ class AppRoutes {
           payrollId: payrollId,
         ),
       );
-      
+    case RouteNames.employees:
+      return MaterialPageRoute(
+        builder: (_) => const EmployeeListScreen(),
+      );
+    
+    case RouteNames.addEmployee:
+      return MaterialPageRoute(
+        builder: (_) => const EmployeeFormScreen(),
+      );
+    
+    case RouteNames.editEmployee:
+      final employeeId = settings.arguments as int;
+    
+      return MaterialPageRoute(
+        builder: (_) => EmployeeFormScreen(
+          employeeId: employeeId,
+        ),
+      );
+    
+    case RouteNames.departments:
+      return MaterialPageRoute(
+        builder: (_) => const DepartmentScreen(),
+      );
+    
+    case RouteNames.leaveRequests:
+      return MaterialPageRoute(
+        builder: (_) => const LeaveRequestScreen(),
+      );
     // Default
       default:
         return MaterialPageRoute(

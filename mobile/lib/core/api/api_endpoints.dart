@@ -1,19 +1,23 @@
 class ApiEndpoints {
   ApiEndpoints._();
 
-  /// Base URL
-  /// Android Emulator:
+  
+  // Base URL
+  
+
+  /// Android Emulator
   static const String baseUrl = "http://10.0.2.2:8000/api";
 
-  /// Real Device:
-  /// static const String baseUrl = "http://192.168.1.7:8000/api";
+  /// Real Android Device
+  /// PC and phone must be on the same network.
+  // static const String baseUrl = "http://192.168.1.7:8000/api";
 
   /// Production
-  // static const String baseUrl = "http://192.168.1.100:8000/api";
+  // static const String baseUrl = "https://your-domain.com/api";
 
-  // ============================
+  
   // Authentication
-  // ============================
+  
 
   static const String register = "/register";
   static const String login = "/login";
@@ -29,32 +33,46 @@ class ApiEndpoints {
   static const String changePassword = "/change-password";
   static const String refreshToken = "/refresh-token";
 
-  // ============================
-  // Employee
-  // ============================
+  
+  // Dashboard
+  
+
+  static const String employeeDashboard = "/dashboard/employee";
+  static const String adminDashboard = "/dashboard/admin";
+
+  
+  // Employee Profile
+  
+
+  static const String employeeProfile = "/employee/profile";
+
+  
+  // Attendance
+  
 
   static const String attendance = "/attendance";
 
+  
+  // Leave Management
+  
+
   static const String leaveRequest = "/leave";
+
+  
+  // Payroll
+  
 
   static const String payroll = "/payroll";
 
-  // ============================
-  // Admin
-  // ============================
+  
+  // Admin - Employee Management
+  
 
   static const String employees = "/employees";
 
+  
+  // Admin - Department Management
+  
+
   static const String departments = "/departments";
-  // ============================
-  // Dashboard
-  // ============================
-
-  static const String employeeDashboard = "/dashboard/employee";
-  static const String adminDashboard = "/dashboard/admin"; 
-  // ============================
-  // Dashboard
-  // ============================
-
-  static const String employeeProfile = "/employee/profile"; 
 }
