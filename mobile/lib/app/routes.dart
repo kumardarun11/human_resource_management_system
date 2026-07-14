@@ -5,6 +5,9 @@ import 'package:mobile/app/route_names.dart';
 import '../features/auth/login_screen.dart';
 import '../features/auth/register_screen.dart';
 import '../features/splash/splash_screen.dart';
+import '../features/auth/otp_verification_screen.dart';
+import '../features/dashboard/employee_dashboard_screen.dart';
+import '../features/dashboard/admin_dashboard_screen.dart';
 
 
 class AppRoutes {
@@ -58,7 +61,32 @@ class AppRoutes {
         return MaterialPageRoute(
           builder: (_) => const OtpVerificationScreen(),
         );*/
-
+      case RouteNames.otpVerification:
+        final args = settings.arguments as Map<String, dynamic>;
+      
+        return MaterialPageRoute(
+          builder: (_) => OtpVerificationScreen(
+            userId: args['user_id'] as int,
+            email: args['email'] as String,
+          ),
+        );
+    // =========================
+    // Employee Dashboard
+    // =========================
+    
+    case RouteNames.employeeDashboard:
+      return MaterialPageRoute(
+        builder: (_) => const EmployeeDashboardScreen(),
+      );
+    
+    // =========================
+    // Admin Dashboard
+    // =========================
+    
+    case RouteNames.adminDashboard:
+      return MaterialPageRoute(
+        builder: (_) => const AdminDashboardScreen(),
+      );
     // =========================
     // Default
     // =========================

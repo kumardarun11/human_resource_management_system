@@ -3,10 +3,10 @@ class ApiEndpoints {
 
   /// Base URL
   /// Android Emulator:
-  /// static const String baseUrl = "http://10.0.2.2:8000/api";
+  static const String baseUrl = "http://10.0.2.2:8000/api";
 
   /// Real Device:
-  static const String baseUrl = "http://192.168.0.184:8000/api";
+  /// static const String baseUrl = "http://192.168.1.7:8000/api";
 
   /// Production
   // static const String baseUrl = "http://192.168.1.100:8000/api";
@@ -35,7 +35,7 @@ class ApiEndpoints {
 
   static const String attendance = "/attendance";
 
-  static const String leaveRequest = "/leave-request";
+  static const String leaveRequest = "/leave";
 
   static const String payroll = "/payroll";
 
@@ -46,4 +46,10 @@ class ApiEndpoints {
   static const String employees = "/employees";
 
   static const String departments = "/departments";
+  // ============================
+  // Dashboard
+  // ============================
+
+  static const String employeeDashboard = "/dashboard/employee";
+  static const String adminDashboard = "/dashboard/admin";  
 }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
+import '../../app/route_names.dart';
+import 'services/auth_service.dart';
 class RegisterScreen extends StatelessWidget {
   const RegisterScreen({super.key});
 
@@ -39,16 +42,93 @@ class _SignupFormState extends State<SignupForm> {
   bool obscurePassword = true;
   bool obscureConfirmPassword = true;
   bool agreeTerms = false;
+  bool isLoading = false;
 
   String? selectedRole;
 
   final List<String> roles = [
     "Employee",
-    "Manager",
-    "HR",
     "Admin",
   ];
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
+    if (!agreeTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please agree to the Terms & Conditions'),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await AuthService.register(
+        employeeId: employeeIdController.text.trim(),
+        name: fullNameController.text.trim(),
+        email: emailController.text.trim(),
+        password: passwordController.text,
+        role: selectedRole!.toLowerCase(),
+      );
+
+      if (!mounted) return;
+
+      final data = response['data'];
+
+      Navigator.pushNamed(
+        context,
+        RouteNames.otpVerification,
+        arguments: {
+          'user_id': data['user_id'],
+          'email': data['email'],
+        },
+      );
+    } on DioException catch (e) {
+      if (!mounted) return;
+
+      final data = e.response?.data;
+
+      String message = 'Registration failed.';
+
+      if (data is Map) {
+        message = data['message']?.toString() ?? message;
+
+        final errors = data['errors'];
+
+        if (errors is Map && errors.isNotEmpty) {
+          final firstError = errors.values.first;
+
+          if (firstError is List && firstError.isNotEmpty) {
+            message = firstError.first.toString();
+          }
+        }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unexpected error: $e'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
   @override
   void dispose() {
     employeeIdController.dispose();
@@ -380,17 +460,7 @@ class _SignupFormState extends State<SignupForm> {
                     BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    if (!agreeTerms) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Please agree to the Terms & Conditions")),
-                      );
-                      return;
-                    }
-                    // TODO: Implement registration logic
-                  }
-                },
+                onPressed: isLoading ? null : _register,
                 child: const Row(
                   children: [
 

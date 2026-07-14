@@ -1,7 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile/features/auth/register_screen.dart';
-
+import '../../core/storage/auth_storage.dart';
+import 'services/auth_service.dart';
 import '../../app/route_names.dart';
 
 
@@ -131,7 +132,84 @@ class _LoginFormState extends State<LoginForm> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
+  Future<void> _login({required String expectedRole}) async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await AuthService.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      final String token = response['access_token'];
+      final Map<String, dynamic> user =
+          Map<String, dynamic>.from(response['user']);
+
+      final String role = user['role'];
+      final int userId = user['id'];
+
+      if (role != expectedRole) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              expectedRole == 'admin'
+                  ? 'Access denied. Admin account required.'
+                  : 'Please use Continue as Admin for admin accounts.',
+            ),
+          ),
+        );
+
+        return;
+      }
+
+      await AuthStorage.saveAuth(
+        token: token,
+        role: role,
+        userId: userId,
+      );
+
+      if (!mounted) return;
+
+      if (role == 'admin') {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          RouteNames.adminDashboard,
+          (route) => false,
+        );
+      } else {
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          RouteNames.employeeDashboard,
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Login failed: ${e.toString()}',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
   @override
   void dispose() {
     _emailController.dispose();
@@ -184,15 +262,18 @@ class _LoginFormState extends State<LoginForm> {
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return "Please enter your email";
                 }
-
-                if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                    .hasMatch(value)) {
+              
+                final emailRegex = RegExp(
+                  r'^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$',
+                );
+              
+                if (!emailRegex.hasMatch(value.trim())) {
                   return "Please enter a valid email";
                 }
-
+              
                 return null;
               },
               decoration: InputDecoration(
@@ -317,11 +398,11 @@ class _LoginFormState extends State<LoginForm> {
               height: 40,
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // TODO: Login
-                  }
-                },
+              onPressed: _isLoading
+                  ? null
+                  : () {
+                      _login(expectedRole: 'employee');
+                    },
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   backgroundColor: const Color(0xff8E3A8C),
@@ -329,24 +410,33 @@ class _LoginFormState extends State<LoginForm> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Row(
-                  children: const [
-                    Spacer(),
-                    Text(
-                      "Sign In",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Row(
+                        children: [
+                          Spacer(),
+                          Text(
+                            "Sign In",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Spacer(),
+                          Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                          ),
+                        ],
                       ),
-                    ),
-                    Spacer(),
-                    Icon(
-                      Icons.arrow_forward,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
               ),
             ),
 
@@ -374,7 +464,11 @@ class _LoginFormState extends State<LoginForm> {
               width: double.infinity,
               height: 40,
               child: OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                        _login(expectedRole: 'admin');
+                      },
                 icon: const Icon(
                   Icons.groups_outlined,
                   color: Color(0xff8E3A8C),

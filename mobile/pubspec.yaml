@@ -28,7 +28,7 @@ dependencies:
   # ============================
   # Local Storage
   # ============================
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.5
 
   # ============================
   # SVG Support
@@ -107,6 +107,3 @@ flutter:
 
   assets:
     - assets/images/
-    - assets/icons/
-    - assets/illustrations/
-    - assets/animations/
