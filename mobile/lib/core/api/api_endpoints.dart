@@ -51,5 +51,10 @@ class ApiEndpoints {
   // ============================
 
   static const String employeeDashboard = "/dashboard/employee";
-  static const String adminDashboard = "/dashboard/admin";  
+  static const String adminDashboard = "/dashboard/admin"; 
+  // ============================
+  // Dashboard
+  // ============================
+
+  static const String employeeProfile = "/employee/profile"; 
 }

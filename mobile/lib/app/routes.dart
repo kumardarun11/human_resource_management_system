@@ -8,6 +8,12 @@ import '../features/splash/splash_screen.dart';
 import '../features/auth/otp_verification_screen.dart';
 import '../features/dashboard/employee_dashboard_screen.dart';
 import '../features/dashboard/admin_dashboard_screen.dart';
+import '../features/profile/employee_profile_screen.dart';
+import '../features/attendance/attendance_screen.dart';
+import '../features/leave/apply_leave_screen.dart';
+import '../features/leave/leave_history_screen.dart';
+import '../features/payroll/payroll_screen.dart';
+import '../features/payroll/payslip_screen.dart';
 
 
 class AppRoutes {
@@ -18,25 +24,19 @@ class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
 
-    // =========================
     // Splash
-    // =========================
       case RouteNames.splash:
         return MaterialPageRoute(
           builder: (_) => const SplashScreen(),
         );
 
-    // =========================
     // Register
-    // =========================
       case RouteNames.register:
         return MaterialPageRoute(
           builder: (_) => const RegisterScreen(),
         );
 
-    // =========================
     // Login
-    // =========================
       case RouteNames.login:
         return MaterialPageRoute(
           builder: (_) => const LoginScreen(),
@@ -51,12 +51,7 @@ class AppRoutes {
         );
 
 
-
-
-
-    // =========================
     // OTP Verification
-    // =========================
       case RouteNames.otpVerification:
         return MaterialPageRoute(
           builder: (_) => const OtpVerificationScreen(),
@@ -70,26 +65,58 @@ class AppRoutes {
             email: args['email'] as String,
           ),
         );
-    // =========================
+
     // Employee Dashboard
-    // =========================
-    
     case RouteNames.employeeDashboard:
       return MaterialPageRoute(
         builder: (_) => const EmployeeDashboardScreen(),
       );
     
-    // =========================
     // Admin Dashboard
-    // =========================
-    
     case RouteNames.adminDashboard:
       return MaterialPageRoute(
         builder: (_) => const AdminDashboardScreen(),
       );
-    // =========================
+
+    // Employee Profile
+    case RouteNames.employeeProfile:
+      return MaterialPageRoute(
+        builder: (_) => const EmployeeProfileScreen(),
+      );
+
+    // Attendance
+    case RouteNames.attendance:
+      return MaterialPageRoute(
+        builder: (_) => const AttendanceScreen(),
+      );
+
+    // Leave
+    case RouteNames.applyLeave:
+      return MaterialPageRoute(
+        builder: (_) => const ApplyLeaveScreen(),
+      );
+
+    case RouteNames.leaveHistory:
+      return MaterialPageRoute(
+        builder: (_) => const LeaveHistoryScreen(),
+      );
+    
+    // Payroll
+    case RouteNames.payroll:
+      return MaterialPageRoute(
+        builder: (_) => const PayrollScreen(),
+      );
+
+    case RouteNames.payslip:
+      final payrollId = settings.arguments as int;
+
+      return MaterialPageRoute(
+        builder: (_) => PayslipScreen(
+          payrollId: payrollId,
+        ),
+      );
+      
     // Default
-    // =========================
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
