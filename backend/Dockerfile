@@ -1,25 +1,25 @@
 # ===========================
-# Stage 1 - Composer
+# Stage 1 - Build dependencies
 # ===========================
-FROM composer:2 AS composer
+FROM composer:2 AS builder
 
 WORKDIR /app
 
-COPY composer.json composer.lock ./
-
-RUN composer install \
-    --prefer-dist \
-    --no-dev \
-    --optimize-autoloader \
-    --no-interaction
-
 COPY . .
 
+RUN composer install \
+    --no-dev \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-scripts
+
 # ===========================
-# Stage 2 - Apache + PHP
+# Stage 2 - Production
 # ===========================
 FROM php:8.2-apache
 
+# System packages
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -42,31 +42,37 @@ RUN apt-get update && apt-get install -y \
         bcmath \
         gd \
         opcache \
-    && a2enmod rewrite
+    && a2enmod rewrite \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html
 
-COPY --from=composer /app /var/www/html
+COPY --from=builder /app .
 
 COPY docker/php/local.ini /usr/local/etc/php/conf.d/local.ini
-
 COPY docker/certs/ca.pem /var/www/docker/certs/ca.pem
-
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
-# Laravel permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 storage bootstrap/cache
-
-# Apache DocumentRoot -> public
+# Apache serves Laravel public/
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
+RUN sed -ri \
+    -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
     /etc/apache2/sites-available/*.conf \
     /etc/apache2/apache2.conf \
     /etc/apache2/conf-available/*.conf
+
+# Laravel permissions
+RUN mkdir -p storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
 
