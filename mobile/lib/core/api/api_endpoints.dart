@@ -3,10 +3,12 @@ class ApiEndpoints {
 
   
   // Base URL
+  /// Production
+  static const String baseUrl = "https://hrms-backend-z20g.onrender.com/api";
   
 
   /// Android Emulator
-  static const String baseUrl = "http://10.0.2.2:8000/api";
+  //static const String baseUrl = "http://10.0.2.2:8000/api";
 
   /// Real Android Device
   /// PC and phone must be on the same network.
