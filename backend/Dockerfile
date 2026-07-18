@@ -9,23 +9,22 @@ COPY composer.json composer.lock ./
 
 RUN composer install \
     --prefer-dist \
-    --no-interaction \
-    --no-scripts
+    --no-dev \
+    --optimize-autoloader \
+    --no-interaction
 
 COPY . .
 
-RUN composer dump-autoload --optimize
-
 # ===========================
-# Stage 2 - PHP-FPM
+# Stage 2 - Apache + PHP
 # ===========================
-FROM php:8.2-fpm
+FROM php:8.2-apache
 
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
-    curl \
     zip \
+    curl \
     libzip-dev \
     libpng-dev \
     libjpeg62-turbo-dev \
@@ -33,31 +32,44 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     && docker-php-ext-configure gd \
-       --with-freetype \
-       --with-jpeg \
+        --with-freetype \
+        --with-jpeg \
     && docker-php-ext-install \
-       pdo_mysql \
-       mbstring \
-       zip \
-       exif \
-       bcmath \
-       gd \
-       opcache
+        pdo_mysql \
+        mbstring \
+        zip \
+        exif \
+        bcmath \
+        gd \
+        opcache \
+    && a2enmod rewrite
 
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-COPY --from=composer /app /var/www
+COPY --from=composer /app /var/www/html
 
 COPY docker/php/local.ini /usr/local/etc/php/conf.d/local.ini
+
+COPY docker/certs/ca.pem /var/www/docker/certs/ca.pem
 
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
-RUN chown -R www-data:www-data /var/www
+# Laravel permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache
 
-EXPOSE 9000
+# Apache DocumentRoot -> public
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
+    /etc/apache2/sites-available/*.conf \
+    /etc/apache2/apache2.conf \
+    /etc/apache2/conf-available/*.conf
+
+EXPOSE 80
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-CMD ["php-fpm"]
+CMD ["apache2-foreground"]
